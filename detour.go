@@ -3,10 +3,13 @@ package main
 import (
 	"bufio"
     "fmt"
-	"path/filepath"
+	//"path/filepath"
 	"os"
 	"regexp"
+	"strings"
 	"time"
+
+    "github.com/mattn/go-zglob"
 
 	"github.com/shu-go/gli"
 	"github.com/shu-go/shortcut"
@@ -44,11 +47,15 @@ func (c globalCmd) Run(args []string) error {
     }
 
     var files []string
-    if len(args) ==0{
+    if len(args) == 0{
         args = append(args, "*.lnk")
     }
     for _, arg := range args {
-        ff, err := filepath.Glob(arg)
+        if !strings.HasSuffix(arg, ".lnk") {
+            arg += ".lnk"
+        }
+        //ff, err := filepath.Glob(arg)
+        ff, err := zglob.Glob(arg)
         if err != nil {
             return err
         }
