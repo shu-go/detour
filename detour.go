@@ -2,7 +2,8 @@ package main
 
 import (
 	"bufio"
-	"log"
+    "fmt"
+	"path/filepath"
 	"os"
 	"regexp"
 	"time"
@@ -12,8 +13,10 @@ import (
 )
 
 type globalCmd struct {
-	Rules   Rules  `cli:"rule,r=OLD:NEW"`
+	Rules   Rules  `cli:"rule,r"`
 	RuleSet string `cli:"rule-set=FILENAME"`
+
+    Verbose bool `cli:"verbose,v"`
 }
 
 func (c globalCmd) Run(args []string) error {
@@ -36,20 +39,46 @@ func (c globalCmd) Run(args []string) error {
 		}
 	}
 
-	for _, arg := range args {
-		s, err := shortcut.Open(arg)
+    if c.Verbose {
+        fmt.Println("Rules:")
+        for _, r := range c.Rules {
+            fmt.Println("  "+r.Old+" => "+r.New)
+        }
+    }
+
+    var files []string
+    if len(args) ==0{
+        args = append(args, "*.lnk")
+    }
+    for _, arg := range args {
+        ff, err := filepath.Glob(arg)
+        if err != nil {
+            return err
+        }
+        
+        files = append(files, ff...)
+    }
+
+        if c.Verbose{
+            fmt.Println("Files:")
+        }
+	for _, f := range files {
+		s, err := shortcut.Open(f)
 		if err != nil {
-			return err
+			continue // go to next
 		}
 
+        if c.Verbose{
+            fmt.Println("  "+f)
+        }
+
 		for _, r := range c.Rules {
-			log.Print(r.Old, "=>", r.New)
 			re := regexp.MustCompile("(?i)" + r.Old)
 			s.TargetPath = re.ReplaceAllString(s.TargetPath, r.New)
 			s.WorkingDirectory = re.ReplaceAllString(s.WorkingDirectory, r.New)
 		}
 
-		s.Save(arg)
+		s.Save(f)
 	}
 
 	return nil
