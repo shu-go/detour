@@ -1,4 +1,4 @@
-# C drive => D drive
+# C: => D:
 c\::d\:
 # detour => shortcut
 detour:shortcut
