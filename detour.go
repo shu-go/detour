@@ -52,6 +52,7 @@ func (c globalCmd) Run(args []string) error {
         if err != nil {
             return err
         }
+
         
         files = append(files, ff...)
     }
@@ -60,6 +61,14 @@ func (c globalCmd) Run(args []string) error {
             fmt.Println("Files:")
         }
 	for _, f := range files {
+        fi, err := os.Lstat(f)
+        if err != nil {
+            return err
+        }
+        if fi.IsDir() {
+            continue
+        }
+
 		s, err := shortcut.Open(f)
 		if err != nil {
 			continue // go to next
