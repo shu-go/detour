@@ -30,12 +30,9 @@ func (c globalCmd) Run(args []string) error {
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
 			line := scanner.Text()
-			var r Rule
-			if err := r.Scan(line); err != nil {
-				return err
-			}
-
-			c.Rules = append(c.Rules, r)
+            if err := c.Rules.Parse(line); err != nil {
+                return nil
+            }
 		}
 	}
 
