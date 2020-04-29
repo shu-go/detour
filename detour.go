@@ -112,6 +112,7 @@ func main() {
 	app.Desc = "Windows shortcut replacer tool"
 	app.Version = Version
     app.Usage = `detour -r old1:new1 -r old2:new2
+detour -r old1:new1 -r old2:new2  ./subdir/*
 detour --rule-set your_rules.txt`
 	app.Copyright = "(C) 2020 Shuhei Kubota"
 	app.Run(os.Args)
