@@ -20,6 +20,7 @@ type globalCmd struct {
 	RuleSet string `cli:"rule-set=FILENAME"`
 
     Verbose bool `cli:"verbose,v"`
+    DryRun bool `cli:"dry-run,n"`
 }
 
 func (c globalCmd) Run(args []string) error {
@@ -38,6 +39,12 @@ func (c globalCmd) Run(args []string) error {
             }
 		}
 	}
+
+    if c.DryRun {
+        fmt.Println("")
+        fmt.Println("DRY RUN MODE")
+        fmt.Println("")
+    }
 
     if c.Verbose {
         fmt.Println("Rules:")
@@ -64,9 +71,9 @@ func (c globalCmd) Run(args []string) error {
         files = append(files, ff...)
     }
 
-        if c.Verbose{
-            fmt.Println("Files:")
-        }
+    if c.Verbose{
+        fmt.Println("Files:")
+    }
 	for _, f := range files {
         fi, err := os.Lstat(f)
         if err != nil {
@@ -83,10 +90,6 @@ func (c globalCmd) Run(args []string) error {
 			continue // go to next
 		}
 
-        if c.Verbose{
-            fmt.Println("  "+f)
-        }
-
 		for _, r := range c.Rules {
 			re := regexp.MustCompile("(?i)" + r.Old)
 
@@ -102,7 +105,15 @@ func (c globalCmd) Run(args []string) error {
             }
 		}
 
-        if changed {
+        if c.Verbose{
+            if changed {
+                fmt.Println("* "+f)
+            } else {
+                fmt.Println("  "+f)
+            }
+        }
+
+        if changed && !c.DryRun {
             s.Save(f)
         }
 	}
