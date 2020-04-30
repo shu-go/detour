@@ -76,6 +76,8 @@ func (c globalCmd) Run(args []string) error {
             continue
         }
 
+        changed := false
+
 		s, err := shortcut.Open(f)
 		if err != nil {
 			continue // go to next
@@ -87,11 +89,22 @@ func (c globalCmd) Run(args []string) error {
 
 		for _, r := range c.Rules {
 			re := regexp.MustCompile("(?i)" + r.Old)
-			s.TargetPath = re.ReplaceAllString(s.TargetPath, r.New)
-			s.WorkingDirectory = re.ReplaceAllString(s.WorkingDirectory, r.New)
+
+            after := re.ReplaceAllString(s.TargetPath, r.New)
+            if s.TargetPath != after {
+                changed = true
+                s.TargetPath = after
+            }
+			after = re.ReplaceAllString(s.WorkingDirectory, r.New)
+            if s.WorkingDirectory != after {
+                changed = true
+                s.WorkingDirectory = after
+            }
 		}
 
-		s.Save(f)
+        if changed {
+            s.Save(f)
+        }
 	}
 
 	return nil
