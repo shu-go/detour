@@ -17,7 +17,7 @@ import (
 )
 
 type globalCmd struct {
-	Rules   Rules  `cli:"rule,r"`
+	Rules   rules  `cli:"rule,r"`
 	RuleSet string `cli:"rule-set=FILENAME"`
 
 	Verbose bool `cli:"verbose,v"`
