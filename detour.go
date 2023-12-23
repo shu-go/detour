@@ -8,11 +8,10 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/mattn/go-zglob"
 
-	"github.com/shu-go/gli"
+	"github.com/shu-go/gli/v2"
 	"github.com/shu-go/shortcut"
 )
 
@@ -123,12 +122,6 @@ func (c globalCmd) Run(args []string) error {
 
 // Version is app version
 var Version string
-
-func init() {
-	if Version == "" {
-		Version = "dev-" + time.Now().Format("20060102")
-	}
-}
 
 func main() {
 	app := gli.NewWith(&globalCmd{})
