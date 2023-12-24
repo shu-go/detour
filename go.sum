@@ -1,5 +1,3 @@
-github.com/dlclark/regexp2 v1.2.0 h1:8sAhBGEM0dRWogWqWyQeIJnxjWO6oIjl8FKqREDsGfk=
-github.com/dlclark/regexp2 v1.2.0/go.mod h1:2pZnwuY/m+8K6iRw6wQdMtk+rH5tNGR1i55kozfMjCc=
 github.com/go-ole/go-ole v1.2.4 h1:nNBDSCOigTSiarFpYE9J/KtEA1IOW4CNeqT9TQDqCxI=
 github.com/go-ole/go-ole v1.2.4/go.mod h1:XCwSNxSkXRo4vlyPy93sltvi/qJq0jqQhjqQNIwKuxM=
 github.com/mattn/go-runewidth v0.0.15 h1:UNAjwbU9l54TA3KzvqLGxwWjHmMgBUVhBiTjelZgg3U=
@@ -18,5 +16,7 @@ github.com/shu-go/gli/v2 v2.0.1/go.mod h1:pSC0XKb69hEarQpiQU74CNiKpcS7a90iJAMUGL
 github.com/shu-go/gotwant v0.0.0-20190920074605-851c8677556b/go.mod h1:FZepfqvib0mXjHiaQPTv0RUD5QMpMA/FHLfBQjZRRQg=
 github.com/shu-go/gotwant v0.0.0-20190920074605-b4f19c0bac91 h1:nwDc3kHbf9scf1UZIWiWw5tZF3Z4yOJAMjNN+kYXJwE=
 github.com/shu-go/gotwant v0.0.0-20190920074605-b4f19c0bac91/go.mod h1:FZepfqvib0mXjHiaQPTv0RUD5QMpMA/FHLfBQjZRRQg=
+github.com/shu-go/nmfmt v0.1.0 h1:gL5u0yiIsegh2gofeNUpAJPWCNgOF+qIivBc9qO/KoE=
+github.com/shu-go/nmfmt v0.1.0/go.mod h1:ulgNf0sfuQEEdX2cM71sGviSEKDf9DUXlm5WtFn0PJY=
 github.com/shu-go/shortcut v0.0.0-20191024081707-3d9452e1f9e6 h1:YXdYBFolLF7B5JoCBVnnzgooFcMpUpyWolzORSer0wQ=
 github.com/shu-go/shortcut v0.0.0-20191024081707-3d9452e1f9e6/go.mod h1:4yjiyfvkHtjGLzAyHOfECrlrIOBAYiu54PeRx5/EsXc=

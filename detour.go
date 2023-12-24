@@ -1,13 +1,15 @@
 package main
 
 import (
-	"bufio"
+	"errors"
 	"fmt"
 
 	//"path/filepath"
 	"os"
 	"regexp"
 	"strings"
+
+	"encoding/json"
 
 	"github.com/mattn/go-zglob"
 
@@ -16,27 +18,35 @@ import (
 )
 
 type globalCmd struct {
-	Rules   rules  `cli:"rule,r"`
-	RuleSet string `cli:"rule-set=FILENAME"`
+	RuleSet string `cli:"rule-set=JSON_FILENAME"`
 
 	Verbose bool `cli:"verbose,v"`
 	DryRun  bool `cli:"dry-run,n"`
 }
 
 func (c globalCmd) Run(args []string) error {
+	if c.RuleSet == "" {
+		return errors.New("option rule-set is required")
+	}
+
+	rules := []rule{}
+
 	if c.RuleSet != "" {
-		f, err := os.Open(c.RuleSet)
+		data, err := os.ReadFile(c.RuleSet)
 		if err != nil {
 			return err
 		}
-		defer f.Close()
 
-		scanner := bufio.NewScanner(f)
-		for scanner.Scan() {
-			line := scanner.Text()
-			if err := c.Rules.Parse(line); err != nil {
-				return nil
+		err = json.Unmarshal(data, &rules)
+		if err != nil {
+			a := struct {
+				Rules []rule `json:"rules"`
+			}{}
+			err = json.Unmarshal(data, &a)
+			if err != nil {
+				return err
 			}
+			rules = a.Rules
 		}
 	}
 
@@ -48,8 +58,8 @@ func (c globalCmd) Run(args []string) error {
 
 	if c.Verbose {
 		fmt.Println("Rules:")
-		for _, r := range c.Rules {
-			fmt.Println("  " + r.Old + " => " + r.New)
+		for _, r := range rules {
+			fmt.Println("  " + r.String())
 		}
 	}
 
@@ -89,7 +99,7 @@ func (c globalCmd) Run(args []string) error {
 			continue // go to next
 		}
 
-		for _, r := range c.Rules {
+		for _, r := range rules {
 			re := regexp.MustCompile("(?i)" + r.Old)
 
 			after := re.ReplaceAllString(s.TargetPath, r.New)
@@ -128,9 +138,8 @@ func main() {
 	app.Name = "detour"
 	app.Desc = "Windows shortcut replacer tool"
 	app.Version = Version
-	app.Usage = `detour -r old1:new1 -r old2:new2
-detour -r old1:new1 -r old2:new2  ./subdir/*
-detour --rule-set your_rules.txt`
+	app.Usage = `detour --rule-set my_rules.json ./subdir/**/*`
 	app.Copyright = "(C) 2020 Shuhei Kubota"
 	app.Run(os.Args)
+
 }

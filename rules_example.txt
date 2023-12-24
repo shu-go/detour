@@ -1,4 +1,0 @@
-# C: => D:
-c\::d\:
-# detour => shortcut
-detour:shortcut
