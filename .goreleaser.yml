@@ -29,7 +29,6 @@ archives:
       - goos: windows
         format: zip
     files:
-      - rules_example.txt
       - LICENSE*
       - README*
 release:
