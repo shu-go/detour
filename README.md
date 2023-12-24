@@ -2,39 +2,33 @@
 
 Windows shortcut replacer tool.
 
-
-
 ## Usage
 
-### One line
+### Generating a rule set JSON file
 
 ```sh
-$ detour -v -r oldserver:newserver -r oldpath:newpath  myserver.lnk
+$ detour gen myrules.json
 ```
 
-> detour  [-v]  -r OLD:NEW  [-r OLD:NEW]...  [--dry-run]  TARGET_PATTERNS...
-
-
-
-### With rule set
-
-```shell
-$ cat myrules.txt
-# server name
-oldserver:newserver
-# paths
-oldpath:newpath
-
-$ detour -v --rule-set myrules.txt  myserver.lnk
+```json
+{
+  "Rules": [
+    {
+      "name": "C: -> D:",
+      "old": "C:",
+      "new": "D:"
+    },
+    {
+      "name": "detour -> shortcut",
+      "old": "detour",
+      "new": "shortcut"
+    }
+  ]
+}
 ```
 
-> detour  [-v]  --rule-set FILE_NAME  [--dry-run]  TARGET_PATTERNS...
+### execute
 
-
-
-### about TARGET_PATTERNS
-
-TARGET_PATTERNS is glob patterns. You can use `**` to dive into directories.
-
-Each pattern gets completed with `.lnk`.
-
+```sh
+$ detour -v --rule-set myruls.json  myserver.lnk
+```
