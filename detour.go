@@ -22,6 +22,8 @@ type globalCmd struct {
 
 	Verbose bool `cli:"verbose,v"`
 	DryRun  bool `cli:"dry-run,n"`
+
+	GenCmd genCmd `cli:"generate,gen" help:"generate a example file"`
 }
 
 func (c globalCmd) Run(args []string) error {
@@ -125,6 +127,45 @@ func (c globalCmd) Run(args []string) error {
 		if changed && !c.DryRun {
 			s.Save(f)
 		}
+	}
+
+	return nil
+}
+
+type genCmd struct {
+	_ any `usage:"detour generate {JSON_FILENAME}"`
+}
+
+func (c genCmd) Run(args []string) error {
+	if len(args) != 1 {
+		return errors.New("JSON_FILENAME is required")
+	}
+
+	cover := struct {
+		Rules []rule
+	}{
+		Rules: []rule{
+			{Name: "C: -> D:", Old: "C:", New: "D:"},
+			{Name: "detour -> shortcut", Old: "detour", New: "shortcut"},
+		},
+	}
+
+	f, err := os.Create(args[0])
+	if err != nil {
+		return err
+	}
+
+	enc := json.NewEncoder(f)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	err = enc.Encode(cover)
+	if err != nil {
+		return err
+	}
+
+	err = f.Close()
+	if err != nil {
+		return err
 	}
 
 	return nil
