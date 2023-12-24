@@ -30,5 +30,5 @@ $ detour gen myrules.json
 ### execute
 
 ```sh
-$ detour -v --rule-set myruls.json  myserver.lnk
+$ detour -v --rule-set myrules.json  myserver.lnk
 ```
