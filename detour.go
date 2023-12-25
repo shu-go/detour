@@ -3,10 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
+	"slices"
 
 	//"path/filepath"
 	"os"
-	"regexp"
 	"strings"
 
 	"encoding/json"
@@ -41,16 +41,20 @@ func (c globalCmd) Run(args []string) error {
 
 		err = json.Unmarshal(data, &rules)
 		if err != nil {
-			a := struct {
+			cover := struct {
 				Rules []rule `json:"rules"`
 			}{}
-			err = json.Unmarshal(data, &a)
+			err = json.Unmarshal(data, &cover)
 			if err != nil {
 				return err
 			}
-			rules = a.Rules
+			rules = cover.Rules
 		}
 	}
+
+	rules = slices.DeleteFunc(rules, func(r rule) bool {
+		return strings.TrimSpace(r.Old) == ""
+	})
 
 	if c.DryRun {
 		fmt.Println("")
@@ -102,17 +106,16 @@ func (c globalCmd) Run(args []string) error {
 		}
 
 		for _, r := range rules {
-			re := regexp.MustCompile("(?i)" + r.Old)
-
-			after := re.ReplaceAllString(s.TargetPath, r.New)
-			if s.TargetPath != after {
-				changed = true
+			after, tmpchanged := r.Apply(s.TargetPath)
+			if tmpchanged {
 				s.TargetPath = after
-			}
-			after = re.ReplaceAllString(s.WorkingDirectory, r.New)
-			if s.WorkingDirectory != after {
 				changed = true
+			}
+
+			after, tmpchanged = r.Apply(s.WorkingDirectory)
+			if tmpchanged {
 				s.WorkingDirectory = after
+				changed = true
 			}
 		}
 
@@ -147,6 +150,7 @@ func (c genCmd) Run(args []string) error {
 		Rules: []rule{
 			{Name: "C: -> D:", Old: "C:", New: "D:"},
 			{Name: "detour -> shortcut", Old: "detour", New: "shortcut"},
+			{Name: "", Old: `\bg.`, New: "go", Regexp: true},
 		},
 	}
 
@@ -179,7 +183,7 @@ func main() {
 	app.Name = "detour"
 	app.Desc = "Windows shortcut replacer tool"
 	app.Version = Version
-	app.Usage = `detour --rule-set my_rules.json ./subdir/**/*`
+	app.Usage = `detour -v --rule-set myrules.json ./subdir/**/*`
 	app.Copyright = "(C) 2020 Shuhei Kubota"
 	app.Run(os.Args)
 
