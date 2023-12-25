@@ -22,13 +22,20 @@ $ detour gen myrules.json
       "name": "detour -> shortcut",
       "old": "detour",
       "new": "shortcut"
+    },
+    {
+      "old": "\\bg.",
+      "new": "go",
+      "regexp": true
     }
   ]
 }
 ```
 
+Note: case insensitive
+
 ### execute
 
 ```sh
-$ detour -v --rule-set myrules.json  myserver.lnk
+$ detour -v --rule-set myrules.json ./subdir/**/*
 ```
