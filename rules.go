@@ -7,11 +7,11 @@ import (
 )
 
 type rule struct {
-	Name string `json:"name,omitempty"`
+	Name string `json:"name,omitempty" yaml:",omitempty"`
 	Old  string `json:"old,omitempty"`
-	New  string `json:"new,omitempty"`
+	New  string `json:"new,omitempty" yaml:",omitempty"`
 
-	Regexp bool `json:"regexp,omitempty"`
+	Regexp bool `json:"regexp,omitempty" yaml:",omitempty"`
 }
 
 func (r rule) String() string {

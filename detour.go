@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"slices"
 
 	//"path/filepath"
@@ -12,13 +13,14 @@ import (
 	"encoding/json"
 
 	"github.com/mattn/go-zglob"
+	"gopkg.in/yaml.v2"
 
 	"github.com/shu-go/gli/v2"
 	"github.com/shu-go/shortcut"
 )
 
 type globalCmd struct {
-	RuleSet string `cli:"rule-set=JSON_FILENAME"`
+	RuleSet string `cli:"rule-set=JSON_OR_YAML_FILENAME"`
 
 	Verbose bool `cli:"verbose,v"`
 	DryRun  bool `cli:"dry-run,n"`
@@ -28,28 +30,47 @@ type globalCmd struct {
 
 func (c globalCmd) Run(args []string) error {
 	if c.RuleSet == "" {
-		return errors.New("option rule-set is required")
+		return errors.New("option --rule-set is required")
 	}
 
 	rules := []rule{}
 
 	if c.RuleSet != "" {
+		isYAML := false
+		ext := strings.ToLower(filepath.Ext(c.RuleSet))
+		if in(ext, ".yaml", ".yml") {
+			isYAML = true
+		}
+
 		data, err := os.ReadFile(c.RuleSet)
 		if err != nil {
 			return err
 		}
 
-		err = json.Unmarshal(data, &rules)
-		if err != nil {
-			cover := struct {
-				Rules []rule `json:"rules"`
-			}{}
-			err = json.Unmarshal(data, &cover)
+		cover := struct {
+			Rules []rule `json:"rules"`
+		}{}
+
+		if isYAML {
+			err = yaml.Unmarshal(data, &rules)
 			if err != nil {
-				return err
+				err = yaml.Unmarshal(data, &cover)
+				if err != nil {
+					return err
+				}
+				rules = cover.Rules
 			}
-			rules = cover.Rules
+		} else {
+			err = json.Unmarshal(data, &rules)
+			if err != nil {
+				err = json.Unmarshal(data, &cover)
+				if err != nil {
+					return err
+				}
+				rules = cover.Rules
+			}
 		}
+
 	}
 
 	rules = slices.DeleteFunc(rules, func(r rule) bool {
@@ -136,12 +157,20 @@ func (c globalCmd) Run(args []string) error {
 }
 
 type genCmd struct {
-	_ any `usage:"detour generate {JSON_FILENAME}"`
+	_ any `usage:"detour generate {JSON_OR_YAML_FILENAME}"`
 }
 
 func (c genCmd) Run(args []string) error {
 	if len(args) != 1 {
-		return errors.New("JSON_FILENAME is required")
+		return errors.New("FILENAME is required")
+	}
+
+	filename := args[0]
+
+	isYAML := false
+	ext := strings.ToLower(filepath.Ext(filename))
+	if in(ext, ".yaml", ".yml") {
+		isYAML = true
 	}
 
 	cover := struct {
@@ -154,17 +183,28 @@ func (c genCmd) Run(args []string) error {
 		},
 	}
 
-	f, err := os.Create(args[0])
+	f, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
 
-	enc := json.NewEncoder(f)
-	enc.SetEscapeHTML(false)
-	enc.SetIndent("", "  ")
-	err = enc.Encode(cover)
-	if err != nil {
-		return err
+	if isYAML {
+		data, err := yaml.Marshal(cover)
+		if err != nil {
+			return err
+		}
+		_, err = f.Write(data)
+		if err != nil {
+			return err
+		}
+	} else {
+		enc := json.NewEncoder(f)
+		enc.SetEscapeHTML(false)
+		enc.SetIndent("", "  ")
+		err = enc.Encode(cover)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = f.Close()
@@ -173,6 +213,19 @@ func (c genCmd) Run(args []string) error {
 	}
 
 	return nil
+}
+
+func in(s string, elems ...string) bool {
+	result := false
+
+	for _, e := range elems {
+		if strings.EqualFold(s, e) {
+			result = true
+			break
+		}
+	}
+
+	return result
 }
 
 // Version is app version

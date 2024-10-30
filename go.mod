@@ -1,12 +1,15 @@
 module github.com/shu-go/detour
 
-go 1.21
+go 1.23
+
+toolchain go1.23.2
 
 require (
 	github.com/mattn/go-zglob v0.0.4
 	github.com/shu-go/gli/v2 v2.0.1
 	github.com/shu-go/nmfmt v0.1.0
 	github.com/shu-go/shortcut v0.0.0-20191024081707-3d9452e1f9e6
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
